@@ -97,32 +97,38 @@ class DataProcessor(QWidget):
             line_ib = []
             
             for line in range(0, len(data_ub), 2):
-                line_ub.append(line)
+                line_ub.append(data_ub[line])
                 
             for line in range(0, len(data_ib), 2):
-                line_ib.append(line)
+                line_ib.append(data_ib[line])
             
-            
+            ub_line = line_ub[332]
+            ib_line = line_ib[332]
 
             # Extract time, uk(t), and ik(t) values
-            uk_str = line_ub[332]
-            ik_str = line_ib[332]
             
-            print(uk_value)
-            print(ik_value)
+            ub_values = []
+            ib_values = []
             
-            uk_value = float(uk_str.replace(',', '.'))
-            ik_value = float(ik_str.replace(',', '.'))
-            
+            for line in ub_line.split():
+                ub_values.append(float(line.replace(',', '.')))
+                
+            for line in ib_line.split():
+                ib_values.append(float(line.replace(',', '.')))
 
             # Plot the signals
             plt.figure()
             
-            for i in range (0, len(uk_value), 0.000625):
-                plt.plot([i], [uk_value], 'o-', label='uk(t)')
+            point = 0
+            
+            for i in range (0, len(ub_values)):
+                plt.plot([point], [ub_values], 'o-', label='uk(t)')
+                point += 0.000625
                 
-            for i in range (0, len(ik_value), 0.000625):
-                plt.plot([i], [ik_value], 'o-', label='ik(t)')
+            point = 0
+            for i in range (0, len(ib_values)):
+                plt.plot([point], [ib_values], 'o-', label='ik(t)')
+                point += 0.000625
                 
             plt.xlabel('Время (с)')
             plt.ylabel('Сигналы')
