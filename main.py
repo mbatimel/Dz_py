@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QFileDialog
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.fft import fft
+from scipy.fft import rfft
 from scipy.signal import find_peaks
 class DataProcessor(QWidget):
     def __init__(self):
@@ -159,20 +159,19 @@ class DataProcessor(QWidget):
        
 
         # Calculate FFT
-        spectrum = fft(ib_values)
+        spectrum = rfft(ib_values)
+
         
-        seconds = []
-        point = 0
-        for i in range (0, 80):
-                seconds.append(point)
-                point += 0.000625
+        freq = []
+        for i in range (0, len(spectrum)):
+            freq.append((800/64) * (i + 1))
         
-        freq = np.fft.fftfreq(len(seconds))
+        # freq = np.fft.fftfreq(len(seconds))
 
         # Plot spectrum
         plt.figure()
         plt.plot(freq, np.abs(spectrum))
-        plt.xlabel('Веремя')
+        plt.xlabel('ГЦ')
         plt.ylabel('Амплитуда')
         plt.title('Спектр сигнала')
         plt.grid(True)
