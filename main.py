@@ -90,22 +90,40 @@ class DataProcessor(QWidget):
                 data_ub = file_ub.readlines()
                 data_ib = file_ib.readlines()
 
+            print(len(data_ub), len(data_ib))
             # Find the 333rd line (index 332)
-            line_ub = data_ub[332]
-            line_ib = data_ib[332]
+            
+            line_ub = []
+            line_ib = []
+            
+            for line in range(0, len(data_ub), 2):
+                line_ub.append(line)
+                
+            for line in range(0, len(data_ib), 2):
+                line_ib.append(line)
+            
+            
 
             # Extract time, uk(t), and ik(t) values
-            time_str_ub, uk_str = line_ub.split()[:2]
-            time_str_ib, ik_str = line_ib.split()[:2]
+            uk_str = line_ub[332]
+            ik_str = line_ib[332]
             
-            time_value = self.convert_to_seconds(time_str_ub)
+            print(uk_value)
+            print(ik_value)
+            
             uk_value = float(uk_str.replace(',', '.'))
             ik_value = float(ik_str.replace(',', '.'))
+            
 
             # Plot the signals
             plt.figure()
-            plt.plot([time_value], [uk_value], 'o-', label='uk(t)')
-            plt.plot([time_value], [ik_value], 'o-', label='ik(t)')
+            
+            for i in range (0, len(uk_value), 0.000625):
+                plt.plot([i], [uk_value], 'o-', label='uk(t)')
+                
+            for i in range (0, len(ik_value), 0.000625):
+                plt.plot([i], [ik_value], 'o-', label='ik(t)')
+                
             plt.xlabel('Время (с)')
             plt.ylabel('Сигналы')
             plt.grid(True)
@@ -115,6 +133,12 @@ class DataProcessor(QWidget):
         except Exception as e:
             print(f"Ошибка при построении сигналов: {e}")
 
+    def splitData(data: list):
+        res = []
+        for i in range(0, len(data), 2):
+            res.append(data[i])
+        return res
+    
     def plot_spectrum(self):
         if not self.data:
             return
