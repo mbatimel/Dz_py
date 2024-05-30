@@ -117,19 +117,19 @@ class DataProcessor(QWidget):
                 ib_values.append(float(line.replace(',', '.')))
 
             # Plot the signals
+            
+            seconds = []
+            point = 0
+            
+            for i in range (0, 80):
+                seconds.append(point)
+                point += 0.000625
+                
             plt.figure()
-            
-            point = 0
-            
-            for i in range (0, len(ub_values)):
-                plt.plot([point], [ub_values], 'o-', label='uk(t)')
-                point += 0.000625
-                
-            point = 0
-            for i in range (0, len(ib_values)):
-                plt.plot([point], [ib_values], 'o-', label='ik(t)')
-                point += 0.000625
-                
+            # plt.scatter(seconds, ub_values)
+            plt.plot(seconds, ub_values, '-o', label='uk(t)')
+            plt.figure()
+            plt.plot(seconds, ib_values, 'o-', label='ik(t)')
             plt.xlabel('Время (с)')
             plt.ylabel('Сигналы')
             plt.grid(True)
@@ -161,7 +161,7 @@ class DataProcessor(QWidget):
         # Plot spectrum
         plt.figure()
         plt.plot(freq, np.abs(spectrum))
-        plt.xlabel('Частота (Гц)')
+        plt.xlabel('Время')
         plt.ylabel('Амплитуда')
         plt.title('Спектр сигнала')
         plt.grid(True)
