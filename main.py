@@ -182,24 +182,65 @@ class DataProcessor(QWidget):
         # Assuming data format is consistent and one cycle is one line
         return data[:len(data)//2]
 
+   
     def plot_instant_power(self):
-        if not self.data:
-            return
+        try:
+            # Load data from Ub.txt and Ib.txt
+            with open('Ub.txt', 'r') as file_ub, open('Ib.txt', 'r') as file_ib:
+                data_ub = file_ub.readlines()
+                data_ib = file_ib.readlines()
 
-        # Extract uk(t) and ik(t)
-        time_values = np.array([self.convert_to_seconds(line.split()[0]) for line in self.data])
-        uk_values = np.array([float(line.split()[1].replace(',', '.')) for line in self.data])
-        ik_values = np.array([float(line.split()[2].replace(',', '.')) for line in self.data])
+            print(len(data_ub), len(data_ib))
+            # Find the 333rd line (index 332)
+            
+            line_ub = []
+            line_ib = []
+            
+            for line in range(0, len(data_ub), 2):
+                line_ub.append(data_ub[line])
+                
+            for line in range(0, len(data_ib), 2):
+                line_ib.append(data_ib[line])
+            
+            ub_line = line_ub[332]
+            ib_line = line_ib[332]
 
-        # Calculate instant power
-        power = uk_values * ik_values
+            # Extract time, uk(t), and ik(t) values
+            
+            ub_values = []
+            ib_values = []
+            
+            for line in ub_line.split():
+                ub_values.append(float(line.replace(',', '.')))
+                
+            for line in ib_line.split():
+                ib_values.append(float(line.replace(',', '.')))
 
-        plt.figure()
-        plt.plot(time_values, power)
-        plt.xlabel('Время (с)')
-        plt.ylabel('Мгновенная мощность (p)')
-        plt.grid(True)
-        plt.show()
+            # Plot the signals
+            
+            seconds = []
+            point = 0
+            
+            for i in range (0, 80):
+                seconds.append(point)
+                point += 0.000625
+
+            # Calculate instant power
+            power = []
+            
+            for i in range(0, len(ub_values), 1):
+                power.append(ub_values[i] * ib_values[i])
+
+            # Построение графика
+            plt.figure()
+            plt.plot(seconds, power)
+            plt.xlabel('Время (с)')
+            plt.ylabel('Мгновенная мощность (p)')
+            plt.grid(True)
+            plt.show()
+
+        except Exception as e:
+            print(f"Ошибка при построении мгновенной мощности: {e}")
 
 
     def plot_power(self):
@@ -245,13 +286,40 @@ class DataProcessor(QWidget):
             return
 
         # Extract uk(t) and ik(t)
-        time_values = np.array([self.convert_to_seconds(line.split()[0]) for line in self.data])
-        uk_values = np.array([float(line.split()[1].replace(',', '.')) for line in self.data])
-        ik_values = np.array([float(line.split()[2].replace(',', '.')) for line in self.data])
+        with open('Ub.txt', 'r') as file_ub, open('Ib.txt', 'r') as file_ib:
+                data_ub = file_ub.readlines()
+                data_ib = file_ib.readlines()
+
+        
+            # Find the 333rd line (index 332)
+            
+        line_ub = []
+        line_ib = []
+            
+        for line in range(0, len(data_ub), 2):
+            line_ub.append(data_ub[line])
+                
+        for line in range(0, len(data_ib), 2):
+            line_ib.append(data_ib[line])
+            
+        ub_line = line_ub[332]
+        ib_line = line_ib[332]
+
+            # Extract time, uk(t), and ik(t) values
+            
+        ub_values = []
+        ib_values = []
+            
+        for line in ub_line.split():
+            ub_values.append(float(line.replace(',', '.')))
+                
+        for line in ib_line.split():
+            ib_values.append(float(line.replace(',', '.')))
+
 
         # Calculate FFT
-        spectrum = fft(uk_values)
-        freq = np.fft.fftfreq(len(time_values))
+        spectrum = rfft(ub_values)
+        freq = np.fft.fftfreq(len(ib_values))
 
         # Find peaks
         peaks, _ = find_peaks(np.abs(spectrum), height=0, distance=1)
