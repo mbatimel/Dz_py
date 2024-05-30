@@ -139,29 +139,40 @@ class DataProcessor(QWidget):
         except Exception as e:
             print(f"Ошибка при построении сигналов: {e}")
 
-    def splitData(data: list):
-        res = []
-        for i in range(0, len(data), 2):
-            res.append(data[i])
-        return res
+
     
     def plot_spectrum(self):
         if not self.data:
             return
-
+        
+        line_ib = []
+        
+        for line in range(0, len(self.data), 2):
+            line_ib.append(self.data[line])
+        
+        ib_line = line_ib[332]
+        ib_values = []
+            
+        for line in ib_line.split():
+            ib_values.append(float(line.replace(',', '.')))
         # Extract data for one cycle
-        cycle_data = self.extract_cycle_data(self.data)
+       
 
         # Calculate FFT
-        time_values = np.array([self.convert_to_seconds(line.split()[0]) for line in cycle_data])
-        uk_values = np.array([float(line.split()[1].replace(',', '.')) for line in cycle_data])
-        spectrum = fft(uk_values)
-        freq = np.fft.fftfreq(len(time_values))
+        spectrum = fft(ib_values)
+        
+        seconds = []
+        point = 0
+        for i in range (0, 80):
+                seconds.append(point)
+                point += 0.000625
+        
+        freq = np.fft.fftfreq(len(seconds))
 
         # Plot spectrum
         plt.figure()
         plt.plot(freq, np.abs(spectrum))
-        plt.xlabel('Время')
+        plt.xlabel('Веремя')
         plt.ylabel('Амплитуда')
         plt.title('Спектр сигнала')
         plt.grid(True)
