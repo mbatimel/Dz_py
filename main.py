@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fft import fft
 from scipy.signal import find_peaks
-
 class DataProcessor(QWidget):
     def __init__(self):
         super().__init__()
@@ -84,34 +83,37 @@ class DataProcessor(QWidget):
         else:
             return '00:00:00'  # Return default duration if no valid times found
 
-
     def plot_signals(self):
-        if not self.data:
-            print("Нет данных для построения графиков")
-            return
-
         try:
-            # Extract uk(t) and ik(t) from line 333
-            line = self.data[333]  # k = 333, но индексация начинается с 0
-            time_values = [self.convert_to_seconds(line.split()[0])]
-            uk_values = [float(line.split()[1].replace(',', '.'))]
-            ik_values = [float(line.split()[2].replace(',', '.'))]
+            # Load data from Ub.txt and Ib.txt
+            with open('Ub.txt', 'r') as file_ub, open('Ib.txt', 'r') as file_ib:
+                data_ub = file_ub.readlines()
+                data_ib = file_ib.readlines()
 
+            # Find the 333rd line (index 332)
+            line_ub = data_ub[332]
+            line_ib = data_ib[332]
+
+            # Extract time, uk(t), and ik(t) values
+            time_str_ub, uk_str = line_ub.split()[:2]
+            time_str_ib, ik_str = line_ib.split()[:2]
+            
+            time_value = self.convert_to_seconds(time_str_ub)
+            uk_value = float(uk_str.replace(',', '.'))
+            ik_value = float(ik_str.replace(',', '.'))
+
+            # Plot the signals
             plt.figure()
-            plt.plot(time_values, uk_values, label='uk(t)')
-            plt.plot(time_values, ik_values, label='ik(t)')
+            plt.plot([time_value], [uk_value], 'o-', label='uk(t)')
+            plt.plot([time_value], [ik_value], 'o-', label='ik(t)')
             plt.xlabel('Время (с)')
             plt.ylabel('Сигналы')
             plt.grid(True)
             plt.legend()
             plt.show()
+
         except Exception as e:
             print(f"Ошибка при построении сигналов: {e}")
-
-
-
-
-
 
     def plot_spectrum(self):
         if not self.data:
